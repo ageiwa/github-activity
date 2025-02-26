@@ -21,14 +21,12 @@ type Event struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-const URL = "https://api.github.com/users/ageiwa/events"
-
 func main() {
-	resp, err := http.Get(URL)
+	fURL := fmt.Sprintf("https://api.github.com/users/%v/events", os.Args[1])
+	resp, err := http.Get(fURL)
 
 	if err != nil {
 		log.Fatal(err.Error())
-		return
 	}
 
 	defer resp.Body.Close()
