@@ -21,8 +21,22 @@ type Event struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+func readCmd(user *string) string {
+	for i, arg := range os.Args {
+		if i == 1 {
+			*user = arg
+		}
+	}
+
+	return ""
+}
+
 func main() {
-	fURL := fmt.Sprintf("https://api.github.com/users/%v/events", os.Args[1])
+	user := ""
+
+	readCmd(&user)
+
+	fURL := fmt.Sprintf("https://api.github.com/users/%v/events", user)
 	resp, err := http.Get(fURL)
 
 	if err != nil {
@@ -34,13 +48,15 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err.Error())
+	} else if resp.StatusCode == 404 {
+		log.Fatal("URL not found!")
 	}
 
 	data := []Event{}
 	err = json.Unmarshal(body, &data)
 
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("Can't parse json in structure!")
 	}
 
 	if len(data) == 0 {
