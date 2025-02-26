@@ -43,6 +43,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	if len(data) == 0 {
+		fmt.Println("It's empty here")
+		return
+	}
+
 	w := tabwriter.NewWriter(os.Stdout, 10, 1, 1, ' ', tabwriter.Debug)
 
 	fmt.Fprintf(w, "Event:\tRepo:\tDate:\t\n")
