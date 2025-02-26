@@ -1,0 +1,57 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"text/tabwriter"
+	"time"
+)
+
+type Repo struct {
+	Name string `json:"name"`
+}
+
+type Event struct {
+	Type string `json:"type"`
+	Repo Repo `json:"repo"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+const URL = "https://api.github.com/users/ageiwa/events"
+
+func main() {
+	resp, err := http.Get(URL)
+
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	data := []Event{}
+	err = json.Unmarshal(body, &data)
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	w := tabwriter.NewWriter(os.Stdout, 10, 1, 1, ' ', tabwriter.Debug)
+
+	fmt.Fprintf(w, "Event:\tRepo:\tDate:\t\n")
+
+	for _, event := range data {
+		fmt.Fprintf(w, "%v\t%v\t%v\t\n", event.Type, event.Repo.Name, event.CreatedAt)
+	}
+
+	defer w.Flush()
+}
